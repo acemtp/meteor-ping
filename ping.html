@@ -8,19 +8,24 @@
 </body>
 
 <template name="pings">
-	{{#each pings}}
-		<p>
-		{{#if me}}<b>{{/if}}
-			{{> ping}}
-		{{#if me}}</b>{{/if}}
-		</p>
-		<br/>
+	Alive clients:<br>
+	{{#each pingsAlive}}
+		{{> ping}}
+	{{/each}}
+	<hr/>
+	Old clients:<br>
+	{{#each pingsDead}}
+		{{> ping}}
 	{{/each}}
 </template>
 
 <template name="ping">
-	{{uagent}}<br/>Ping is {{meanPing}} ms - 
+	<p>
+	{{#if me}}<b>{{/if}}
+	{{uagent}}<br/>Mean ping is {{meanPing}} ms - 
 	{{#each stats}}
 		{{this}}ms
 	{{/each}}
+		{{#if me}}</b>{{/if}}
+		</p>
 </template>

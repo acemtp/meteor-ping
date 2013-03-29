@@ -18,13 +18,18 @@ if (Meteor.isClient) {
 		}, 1000);
 	});
 
-	Template.pings.me = function () {
-  	return Session.equals('uid', this._id);
+
+	Template.pings.pingsAlive = function () {
+  	return Pings.find({alive: true}, {sort: {createdAt: -1}});
+  }
+
+	Template.pings.pingsDead = function () {
+  	return Pings.find({alive: false}, {sort: {createdAt: -1}});
   }
 
 
-	Template.pings.pings = function () {
-  	return Pings.find({}, {sort: {createdAt: -1}});
+	Template.ping.me = function () {
+  	return Session.equals('uid', this._id);
   }
 
 	Template.ping.meanPing = function () {
@@ -45,9 +50,9 @@ if (Meteor.isServer) {
 	  keepAlive: function (uid, ping, uagent) {
 	  	var p = Pings.findOne(uid);
 	  	if(p)
-		  	Pings.update(uid, {$set: {ping:ping, updatedAt: new Date().getTime()}});
+		  	Pings.update(uid, {$set: {ping:ping, alive: true, updatedAt: new Date().getTime()}});
 		  else
-		  	Pings.insert({_id: uid, ping:ping, uagent: uagent, createdAt: new Date().getTime(), stats: [0,0,0,0,0,0,0,0,0,0] });
+		  	Pings.insert({_id: uid, alive: true, ping:ping, uagent: uagent, createdAt: new Date().getTime(), stats: [0,0,0,0,0,0,0,0,0,0] });
 
 		  Pings.update(uid, { $push: { "stats" : ping } } );
 		  Pings.update(uid, { $pop: { "stats": -1 } } );
@@ -60,7 +65,8 @@ if (Meteor.isServer) {
     var now = (new Date()).getTime();
     var before = (now - 5000);
     Pings.find({updatedAt: {$lt: before}}).forEach(function (ping) {
-      Pings.remove( ping._id );
+      //Pings.remove( ping._id );
+      Pings.update(ping._id, {$set : {alive : false}});
     });
 	}, 1000*5);
 
