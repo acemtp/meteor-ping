@@ -1,0 +1,26 @@
+<head>
+	<title>pings</title>
+	<script type='text/javascript' src='http://www.google.com/jsapi'></script>
+</head>
+
+<body>
+  {{> pings}}
+</body>
+
+<template name="pings">
+	{{#each pings}}
+		<p>
+		{{#if me}}<b>{{/if}}
+			{{> ping}}
+		{{#if me}}</b>{{/if}}
+		</p>
+		<br/>
+	{{/each}}
+</template>
+
+<template name="ping">
+	{{uagent}}<br/>Ping is {{meanPing}} ms - 
+	{{#each stats}}
+		{{this}}ms
+	{{/each}}
+</template>
