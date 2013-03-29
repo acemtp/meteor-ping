@@ -7,7 +7,10 @@ if (Meteor.isClient) {
 
 		Meteor.setInterval(function () {
 			var before = new Date().getTime();
-			Meteor.call('keepAlive', Session.get('uid'), Session.get('ping'), navigator.userAgent, function (error, result) {
+			var name = "";
+			if(Meteor.user() && Meteor.user().profile && Meteor.user().profile.name)
+				name =  Meteor.user().profile.name;
+			Meteor.call('keepAlive', Session.get('uid'), Session.get('ping'), navigator.userAgent, name, function (error, result) {
 				var after = new Date().getTime();
 				if(error) console.log(error);
 				var ping = after - before;
@@ -47,12 +50,12 @@ Pings = new Meteor.Collection("pings");
 
 if (Meteor.isServer) {
 	Meteor.methods({
-	  keepAlive: function (uid, ping, uagent) {
+	  keepAlive: function (uid, ping, uagent, name) {
 	  	var p = Pings.findOne(uid);
 	  	if(p)
-		  	Pings.update(uid, {$set: {ping:ping, alive: true, updatedAt: new Date().getTime()}});
+		  	Pings.update(uid, {$set: {ping:ping, alive: true, updatedAt: new Date().getTime(), name: name}});
 		  else
-		  	Pings.insert({_id: uid, alive: true, ping:ping, uagent: uagent, createdAt: new Date().getTime(), stats: [0,0,0,0,0,0,0,0,0,0] });
+		  	Pings.insert({_id: uid, alive: true, ping:ping, uagent: uagent, createdAt: new Date().getTime(), stats: [0,0,0,0,0,0,0,0,0,0], name: name });
 
 		  Pings.update(uid, { $push: { "stats" : ping } } );
 		  Pings.update(uid, { $pop: { "stats": -1 } } );

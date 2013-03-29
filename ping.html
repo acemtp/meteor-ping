@@ -1,19 +1,21 @@
 <head>
 	<title>pings</title>
-	<script type='text/javascript' src='http://www.google.com/jsapi'></script>
 </head>
 
 <body>
-  {{> pings}}
+	{{loginButtons}}
+	<br/>
+	<br/>
+	{{> pings}}
 </body>
 
 <template name="pings">
-	Alive clients:<br>
+	<b>Alive clients:</b><br>
 	{{#each pingsAlive}}
 		{{> ping}}
 	{{/each}}
 	<hr/>
-	Old clients:<br>
+	<b>Old clients:</b><br>
 	{{#each pingsDead}}
 		{{> ping}}
 	{{/each}}
@@ -22,10 +24,11 @@
 <template name="ping">
 	<p>
 	{{#if me}}<b>{{/if}}
+	{{name}}<br/>
 	{{uagent}}<br/>Mean ping is {{meanPing}} ms - 
 	{{#each stats}}
 		{{this}}ms
 	{{/each}}
-		{{#if me}}</b>{{/if}}
-		</p>
+	{{#if me}}</b>{{/if}}
+	</p>
 </template>
