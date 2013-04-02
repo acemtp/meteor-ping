@@ -1,11 +1,66 @@
+// setup plot
+var series = {};
+var options = {
+    series: { shadowSize: 0 }, // drawing is faster without shadows
+    yaxis: { min: 0, max: 1000 },
+    xaxis: { show: false }
+};
+
+
 if (Meteor.isClient) {
+
+
+ 
 
 	Session.setDefault('uid', Random.id());
 	Session.setDefault('ping', 0);
 
 	Meteor.startup(function () {
+		console.log("startup");
+
+		Pings.find().observe({
+			changed : function(newDoc, oldDoc){
+				var id = oldDoc._id;
+//				var p = Pings.findOne({_id:Session.get('uid')});
+				var p = Pings.findOne(id);
+				if(p){
+			    var res = [];
+			    var data = p.stats;
+	    		for (var i = 0; i < data.length; ++i)
+	     		   res.push([i, data[i]])
+	     		var name = id;
+	     		if(newDoc.name !== "")
+	     			name = newDoc.name;
+	     		series[id] = {data : res, label : name};
+	     		if(id===Session.get('uid')){
+	     			series[id]["color"] = "rgba(0,0,0,1)";
+	     		}
+
+				}
+			}
+		});
 
 		Meteor.setInterval(function () {
+			{
+
+				var res = [];
+				_.each(series, function(el, index, list) {
+						//console.log(index);
+						res.push(el);
+				})
+				if(res)
+				{
+					var plot = $.plot($("#placeholder"), res, options);
+
+				  plot.setData(res);
+				  // since the axes don't change, we don't need to call plot.setupGrid()
+				  plot.draw();
+
+				}
+
+			}
+
+
 			var before = new Date().getTime();
 			var name = "";
 			if(Meteor.user() && Meteor.user().profile && Meteor.user().profile.name)
@@ -20,6 +75,8 @@ if (Meteor.isClient) {
 			});
 		}, 1000);
 	});
+
+
 
 
 	Template.pings.pingsAlive = function () {
